@@ -12,10 +12,10 @@ class DatabaseUtils():
     def connect_to_db(self):
         
         db_host = 'ip' 
-        db_user = 'root' 
+        db_user = 'user' 
         db_pass = 'pass' 
         db_name = 'mysql' 
-        db_port = 0 
+        db_port = 9999
 
         pool = sqlalchemy.create_engine(
             sqlalchemy.engine.url.URL.create(
