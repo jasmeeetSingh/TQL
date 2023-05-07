@@ -1,4 +1,6 @@
 pymysql==1.0.3
 sqlalchemy==2.0.9
+spacy==3.5.2
+nltk==3.8.1
 transformers==4.28.1
 sentencepiece==0.1.98
