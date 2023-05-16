@@ -60,15 +60,18 @@ class TableMapper():
             score = 0
             for word in query:
                 for column in column_list:
-                    if(word in column):
+                    col = self.stemmer.stem(column)
+                    if(word.startswith(col) or word.endswith(col)
+                       or col.startswith(word) or col.endswith(word)):
                         score += 1    
             if(score > 0):
                 scores.append([query, column_list, score])
 
-        return pd.DataFrame(scores, columns = ['query_words', 'col_list', 'score'])\
+        scores_df = pd.DataFrame(scores, columns = ['query_words', 'col_list', 'score'])\
                     .sort_values(by = 'score', ascending = False)\
                     .reset_index(drop = True)
-    
+        # display(scores_df)
+        return scores_df
     
     def get_column_overlap_score(self, scores):
         '''
@@ -80,7 +83,11 @@ class TableMapper():
             score_temp = 0
             for word in query[:]:
                 for column in column_list[:]:
-                    if(word in column):
+                    col = self.stemmer.stem(column)
+                    if(word.startswith(col) or word.endswith(col)
+                       or col.startswith(word) or col.endswith(word)):
+                    # if(word in col or col in word):
+                        # print(word, column)
                         score_temp += 1
                         query.remove(word)
                         break
@@ -88,6 +95,8 @@ class TableMapper():
 
             if(score_temp > 0):
                 final.append([column_list, query, score_temp])
+                
+        # display(pd.DataFrame(final))
 
         return final 
     
@@ -141,7 +150,7 @@ class TableMapper():
             if(list(set(actual_list)) != list(set(table_names_mapping))):
                 if(verbosity == 1):
                     print(t.TQL.iloc[i])
-                    print(t.SQL.iloc[i].lower().split())
+                    print(t.SQL.iloc[i])
                     print(self.remove_stopwords(t.TQL.iloc[i]))
                     print('----------------------------------------------------------------------------')
                     print('Actual List', actual_list, '| Predicted List', table_names_mapping, i)
