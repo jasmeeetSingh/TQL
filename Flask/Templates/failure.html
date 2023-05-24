@@ -85,22 +85,9 @@
       <h1>TQL-to-SQL</h1>
     </header>
     <main>
-        <br><br><br><br>
-      <form method="post" action="{{ url_for('process_text') }}">
-          
-        <h2 for="user_text">Enter the schema:</h1>
-        <textarea id="user_text" name="user_text" rows="4"></textarea>
-          <br><br><br><br><br><br>
-          <h2 for="user_text1">Enter the query:</h1>
-          <textarea id="user_text1" name="user_text1" rows="4"></textarea>
-        <br><br><br><br>
-        <button id="submit-btn" type="submit">Submit</button>
-        <div id="loading-spinner" class="spinner">
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-      </form>
+        <p style="font-size: 22px"> Input TQL: {{ actual_text }} </p>
+        <p style="font-size: 22px"> Something went wrong, please recheck the schema entered or try rephrasing the query! </p>
+      <button onclick="location.href='{{ url_for('home') }}'">Enter new text</button>
     </main>
     <script>
       const submitBtn = document.getElementById('submit-btn');
