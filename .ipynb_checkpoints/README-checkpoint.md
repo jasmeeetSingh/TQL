@@ -23,15 +23,15 @@ Transforming Text into SQL Queries.
 
 1. **Input Natural Language**: Simply provide a natural language query, and TQL will analyze and process it.
 
-![TQL Initial UI](TQL/images/TQL-UI.jpeg)
+![TQL Initial UI](images/TQL-UI.jpeg)
 
 2. **Database Schema Integration**: TQL utilizes the database schema to understand the structure and relationships of the data.
 
 3. **SQL Query Generation**: The system generates SQL queries tailored to the input, ensuring accurate results.
 
-![TQL Results](TQL/images/TQL-results.jpeg)
+![TQL Results](images/TQL-results.jpeg)
 
-![TQL Error Handling](TQL/images/TQL-Error_Handling.jpeg)
+![TQL Error Handling](images/TQL-Error_Handling.jpeg)
 
 TQL is designed to streamline the database querying process, saving time and eliminating the need for deep SQL expertise. Whether you're a developer looking to simplify database interactions or a non-technical user seeking an intuitive way to retrieve data, TQL is the solution.
 
