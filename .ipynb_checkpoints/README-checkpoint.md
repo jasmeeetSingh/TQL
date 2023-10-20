@@ -31,7 +31,7 @@ Transforming Text into SQL Queries.
 
 ![TQL Results](images/TQL-results.jpeg)
 
-4. **TQL Error Hnadling**: If the system detects that the input text isn't related to any database or schema, it prompts the user to provide valid input text
+4. **TQL Error Handling**: If the system detects that the input text isn't related to any database or schema, it prompts the user to provide valid input text
 
 ![TQL Error Handling](images/TQL-Error_Handling.jpeg)
 
