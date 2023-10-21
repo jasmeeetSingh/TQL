@@ -6,6 +6,8 @@ nltk.download('punkt', quiet=True)
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
+from fuzzywuzzy import fuzz
+
 
 import pandas as pd
 
@@ -51,10 +53,11 @@ class TableMapper():
         
         return col_list
     
+    
     def get_scores(self, query, column_list_full):
-        '''
-        Get score based on number of words that are in query and the (colum list + table_name) list
-        '''
+        
+        #Get score based on number of words that are in query and the (colum list + table_name) list
+        
         scores = []
         for column_list in column_list_full:
             score = 0
@@ -74,10 +77,10 @@ class TableMapper():
         return scores_df
     
     def get_column_overlap_score(self, scores):
-        '''
-        Second iteration of scores dataframe to reduce the impact of ordering in table.
-        Takes in the scores dataframe and iterates through it and removes the words from query already matched.
-        '''
+        
+        #Second iteration of scores dataframe to reduce the impact of ordering in table.
+        #Takes in the scores dataframe and iterates through it and removes the words from query already matched.
+        
         final = []
         for column_list, query in zip(scores.col_list.to_list(), scores.query_words.to_list()):
             score_temp = 0
@@ -99,6 +102,7 @@ class TableMapper():
         # display(pd.DataFrame(final))
 
         return final 
+    
     
     def get_table_names_tql(self, s, query):
         '''
