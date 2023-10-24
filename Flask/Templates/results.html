@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TQL!</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      header {
+        background-color: #003366;
+        color: white;
+        padding: 1em;
+      }
+      
+      h1 {
+        margin: 0;
+      }
+      
+      main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em;
+      }
+      
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 1em;
+      }
+      
+      th, td {
+        text-align: left;
+        padding: 0.5em;
+        border: 1px solid #dddddd;
+      }
+      
+      th {
+        background-color: #dddddd;
+        font-weight: bold;
+      }
+        
+    button {
+        display: block;
+        margin: 1em 0 0 0;
+        padding: 0.5em 1em;
+        border: none;
+        border-radius: 0.25em;
+        background-color: #003366;
+        color: white;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      
+      button:hover {
+        background-color: #002255;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>TQL-to-SQL</h1>
+    </header>
+    <main>
+        <br>
+      <h1>Results</h1>
+    <h2>The SQL query is :</h2>
+        <!-- Increase font size --> 
+        <p style="font-size: 22px"> Input TQL: {{ actual_text }} </p>
+        <p style="font-size: 22px"> {{ processed_text }} </p>
+        <button onclick="location.href='{{ url_for('home') }}'">Enter new text</button>
+    </main>
+      <br><br><br><br>
+  </body>
+</html>

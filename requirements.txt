@@ -4,3 +4,4 @@ spacy==3.5.2
 nltk==3.8.1
 transformers==4.28.1
 sentencepiece==0.1.98
+flask==2.2.5

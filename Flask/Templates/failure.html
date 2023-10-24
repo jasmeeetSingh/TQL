@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TQL!</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      
+      header {
+        background-color: #003366;
+        color: white;
+        padding: 1em;
+      }
+      
+      h1 {
+        margin: 0;
+      }
+      
+      main {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1em;
+      }
+      
+      textarea {
+        width: 100%;
+        height: 60%;
+        resize: none;
+        padding: 0.5em;
+        border: 1px solid #dddddd;
+      }
+      
+      button {
+        display: block;
+        margin: 1em 0 0 0;
+        padding: 0.5em 1em;
+        border: none;
+        border-radius: 0.25em;
+        background-color: #003366;
+        color: white;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      
+      button:hover {
+        background-color: #002255;
+      }
+      
+      .spinner {
+        display: none;
+        margin: 1em 0 0 0;
+        text-align: center;
+      }
+      
+      .loading {
+        display: block !important;
+      }
+      
+      .spinner > div {
+        width: 25px;
+        height: 25px;
+        background-color: #000c66;
+        border-radius: 100%;
+        display: inline-block;
+        animation: spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      }
+      
+      @keyframes spinner {
+        0% {
+          transform: scale(0);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>TQL-to-SQL</h1>
+    </header>
+    <main>
+        <p style="font-size: 22px"> Input TQL: {{ actual_text }} </p>
+        <p style="font-size: 22px"> Something went wrong, please recheck the schema entered or try rephrasing the query! </p>
+      <button onclick="location.href='{{ url_for('home') }}'">Enter new text</button>
+    </main>
+    <script>
+      const submitBtn = document.getElementById('submit-btn');
+      const loadingSpinner = document.getElementById('loading-spinner');
+
+      submitBtn.addEventListener('click', () => {
+        loadingSpinner.classList.add('loading');
+      });
+        
+      var userText = document.getElementById("user_text");
+      userText.addEventListener("input", function() {
+        this.style.height = "auto";
+        this.style.height = (this.scrollHeight + 2) + "px";
+      });
+    </script>
+  </body>
+</html>
