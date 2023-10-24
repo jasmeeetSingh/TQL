@@ -6,6 +6,8 @@ nltk.download('punkt', quiet=True)
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
+from fuzzywuzzy import fuzz
+
 
 import pandas as pd
 
@@ -51,36 +53,44 @@ class TableMapper():
         
         return col_list
     
+    
     def get_scores(self, query, column_list_full):
-        '''
-        Get score based on number of words that are in query and the (colum list + table_name) list
-        '''
+        
+        #Get score based on number of words that are in query and the (colum list + table_name) list
+        
         scores = []
         for column_list in column_list_full:
             score = 0
             for word in query:
                 for column in column_list:
-                    if(word in column):
+                    col = self.stemmer.stem(column)
+                    if(word.startswith(col) or word.endswith(col)
+                       or col.startswith(word) or col.endswith(word)):
                         score += 1    
             if(score > 0):
                 scores.append([query, column_list, score])
 
-        return pd.DataFrame(scores, columns = ['query_words', 'col_list', 'score'])\
+        scores_df = pd.DataFrame(scores, columns = ['query_words', 'col_list', 'score'])\
                     .sort_values(by = 'score', ascending = False)\
                     .reset_index(drop = True)
-    
+        # display(scores_df)
+        return scores_df
     
     def get_column_overlap_score(self, scores):
-        '''
-        Second iteration of scores dataframe to reduce the impact of ordering in table.
-        Takes in the scores dataframe and iterates through it and removes the words from query already matched.
-        '''
+        
+        #Second iteration of scores dataframe to reduce the impact of ordering in table.
+        #Takes in the scores dataframe and iterates through it and removes the words from query already matched.
+        
         final = []
         for column_list, query in zip(scores.col_list.to_list(), scores.query_words.to_list()):
             score_temp = 0
             for word in query[:]:
                 for column in column_list[:]:
-                    if(word in column):
+                    col = self.stemmer.stem(column)
+                    if(word.startswith(col) or word.endswith(col)
+                       or col.startswith(word) or col.endswith(word)):
+                    # if(word in col or col in word):
+                        # print(word, column)
                         score_temp += 1
                         query.remove(word)
                         break
@@ -88,8 +98,11 @@ class TableMapper():
 
             if(score_temp > 0):
                 final.append([column_list, query, score_temp])
+                
+        # display(pd.DataFrame(final))
 
         return final 
+    
     
     def get_table_names_tql(self, s, query):
         '''
@@ -141,7 +154,7 @@ class TableMapper():
             if(list(set(actual_list)) != list(set(table_names_mapping))):
                 if(verbosity == 1):
                     print(t.TQL.iloc[i])
-                    print(t.SQL.iloc[i].lower().split())
+                    print(t.SQL.iloc[i])
                     print(self.remove_stopwords(t.TQL.iloc[i]))
                     print('----------------------------------------------------------------------------')
                     print('Actual List', actual_list, '| Predicted List', table_names_mapping, i)
