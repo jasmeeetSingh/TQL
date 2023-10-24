@@ -1,0 +1,5 @@
+sudo su - 
+apt-get update && apt-get install -y openssh-client
+pip install -r /home/jupyter/github/TQL/Model/deepspeed/requirements.txt
+chmod -R 777 google_vm_config.lock
+deepspeed /home/jupyter/github/TQL/Model/deepspeed/llama_deepspeed.py
