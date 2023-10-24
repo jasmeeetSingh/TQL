@@ -1,47 +1,79 @@
-# TQL
+# TQL - Transforming Text into SQL Queries
 
-Transforming Text into SQL Queries.
+## Introduction
+
+Welcome to the repository for **TQL (Table Query Language)** – an innovative project dedicated to simplifying the interaction between natural language and structured database queries. In an era where data is the backbone of decision-making, TQL emerges as a powerful tool to bridge the gap between everyday language and precise database queries. This README is your guide to understanding the project's journey, its significance, and the structure of this repository.
 
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Key Features](#Key-Features)
-- [How TQL Works](#How-TQL-works)
+- [Why TQL?](#why-tql)
+- [How TQL Works](#how-tql-works)
+- [The Models Behind TQL](#the-models-behind-tql)
+- [The Road Ahead](#the-road-ahead)
 - [Repository Structure](#repository-structure)
 
 ## Project Overview
 
-**TQL (Table Query Language)** is an innovative project that bridges the gap between natural language understanding and structured database queries. With TQL, you can input natural language text and have it intelligently translated into SQL queries, utilizing the underlying database schema. This project aims to simplify the process of querying databases, making it accessible to individuals without prior SQL knowledge.
+**TQL (Table Query Language)** is a cutting-edge initiative that offers a seamless transition from natural language understanding to precise SQL queries. With TQL, you can input plain English text and watch it transform into intelligently crafted SQL queries, all while adhering to the underlying database schema. Our project aims to democratize the process of querying databases, making it accessible even to individuals with minimal SQL expertise.
 
-### Key Features:
+## Why TQL?
 
-- **Natural Language Interface**: TQL takes plain English queries and converts them into SQL, making it easier for non-technical users to interact with databases.
+In a world driven by data, the ability to access and manipulate databases is invaluable. TQL offers a natural language interface, turning everyday language into powerful SQL commands. Whether you are a seasoned data professional, a researcher seeking insights, a developer streamlining database interactions, or an everyday user in search of specific information, TQL makes data retrieval accessible to all.
 
-- **Schema-Based Query Generation**: TQL leverages the database schema to understand and generate accurate SQL queries. It ensures data integrity and consistency in query results.
+## How TQL Works
 
-### How TQL Works:
+The journey through TQL involves the following steps:
 
-1. **Input Natural Language**: Simply provide a natural language query, and TQL will analyze and process it.
+### 1. Input Natural Language
+
+TQL's journey begins with your simple request. Users provide queries in plain, everyday language. TQL is ready to interpret these queries and transform them into structured SQL commands.
 
 ![TQL Initial UI](images/TQL-UI.jpeg)
 
-2. **Database Schema Integration**: TQL utilizes the database schema to understand the structure and relationships of the data.
+### 2. Database Schema Integration
 
-3. **SQL Query Generation**: The system generates SQL queries tailored to the input, ensuring accurate results.
+TQL is more than a language translator; it's a database expert. It understands the intricate structure and relationships within the database schema, ensuring data integrity and consistency.
+
+### 3. SQL Query Generation
+
+With all the pieces in place, TQL generates a tailored SQL query that aligns perfectly with your natural language request. This process guarantees accurate and reliable results.
 
 ![TQL Results](images/TQL-results.jpeg)
 
-4. **TQL Error Handling**: If the system detects that the input text isn't related to any database or schema, it prompts the user to provide valid input text
+### 4. TQL Error Handling
+
+Sometimes, the road to answers can be a bit bumpy. If TQL detects that your input text doesn't relate to any database or schema, it will kindly ask for valid input text to ensure a successful query.
 
 ![TQL Error Handling](images/TQL-Error_Handling.jpeg)
 
-TQL is designed to streamline the database querying process, saving time and eliminating the need for deep SQL expertise. Whether you're a developer looking to simplify database interactions or a non-technical user seeking an intuitive way to retrieve data, TQL is the solution.
+## The Models Behind TQL
 
-For more details, documentation, and contributions, please refer to the sections below.
+TQL relies on several models and approaches to perform its magic. These include:
+
+- **Natural Language Processing (NLP)**: To interpret and translate user queries.
+- **Mapping Logic**: To understand the structure and relationships within the data.
+- **Machine Learning**: To generate accurate SQL queries tailored to the input text.
+
+## The Models tested when building TQL
+
+We tested the TQL logic on quite a few models, some of these include: 
+
+- **T5**: To interpret and translate user queries.
+- **T5- For code generation**: To understand the structure and relationships within the data.
+
+## The Road Ahead
+
+As we look to the future, TQL is far from reaching its final destination. There's a lot more to explore and improve, such as:
+
+- **Advanced NLP Models**: Leveraging state-of-the-art NLP models for even more accurate translations.
+- **Enhanced User Experience**: Continuously refining the user interface to make TQL even more user-friendly.
+- **Support for Multiple Databases**: Expanding compatibility with various database management systems.
+- **Community Contributions**: We welcome contributions from the community to enhance TQL and make it even more versatile.
 
 ## Repository Structure
 
-Here is the structure of the repository:
+Now, you may be wondering where all the magic happens. Here's a glimpse of the repository structure:
 
 - `.ipynb_checkpoints`: Checkpoint files generated by Jupyter Notebooks.
 - `Flask`: Files related to the Flask application.
