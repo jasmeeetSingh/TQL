@@ -25,6 +25,11 @@ import os
 IGNORE_TOKEN_ID = LabelSmoother.ignore_index
 import pandas as pd
 
+
+import sys
+sys.path.append('/home/jupyter/github/TQL/')
+from utils.token import hub_token
+
 queryData = pd.read_csv('gs://data_tql/spider/processed/spiderQueryData.csv')
 tableData = pd.read_csv('gs://data_tql/spider/processed/Schemas/tablesSchemaSpider.csv')
 
@@ -155,9 +160,9 @@ train_args = TrainingArguments(
     hub_strategy="checkpoint",
     hub_private_repo=True,
     push_to_hub=True,
-    deepspeed="/home/jupyter/ds_config_zero3.json",
+    deepspeed="/home/jupyter/github/TQL/Model/deepspeed/ds_config_zero3.json",
     num_train_epochs = 3,
-    hub_token = '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'
+    hub_token = hub_token
 )
 
 lora_r = 8
