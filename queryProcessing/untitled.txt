@@ -1,91 +1,15 @@
-import re
 
-import nltk
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
-from nltk.corpus import wordnet
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer, PorterStemmer
-
-
-import pandas as pd
-
-class TableMapper():
-    
-    def __init__(self, query, schema):
-        self.query = query
-        self.schema = schema
-        self.stemmer = PorterStemmer()
-
-        self.lemmatizer = WordNetLemmatizer()
-        self.stop_words = set(stopwords.words('english'))
-        self.stop_words.add('number')
-      
-    
-    def get_filtered_schema(self, schema_id):
-        '''
-        Returns the filtered schema and query df for a given schema_id
-        EX: get all queries and table details for 'college_2'
-        '''
-        s = self.schema[self.schema.schema_id == schema_id].reset_index(drop = True)
-        t = self.query[self.query.db_id == schema_id].reset_index(drop = True)
-        
-        return s, t
-    
-    def get_wordnet_pos(self, treebank_tag):
-        '''
-        Map treebank part-of-speech tags to WordNet part-of-speech tags
-        '''
-        if treebank_tag.startswith('J'):
-            return wordnet.ADJ
-        elif treebank_tag.startswith('V'):
-            return wordnet.VERB
-        elif treebank_tag.startswith('N'):
-            return wordnet.NOUN
-        elif treebank_tag.startswith('R'):
-            return wordnet.ADV
-        else:
-            return wordnet.NOUN  # Default to noun
-    
-    def remove_stopwords(self, sentence):    
-        '''
-        Remove all stopwords from a TQL query
-        '''
-        words = word_tokenize(sentence)
-        pos_tags = nltk.pos_tag(words)
-        lemmatized_words = [self.lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)) for word, pos in pos_tags 
-                            if not word.lower() and len(word) > 3 in self.stop_words]
-        
-        filtered_sentence = [self.stemmer.stem(w) for w in words if not w.lower() and len(w) > 3 in self.stop_words]
-        filtered_sentence = ' '.join(filtered_sentence)
-        return list(set((re.sub('[^a-zA-Z ]', '', filtered_sentence.lower()) + ' ' +\
-                re.sub("[^a-zA-Z ]", '', ' '.join(lemmatized_words)).lower()).split()))
-    
-    
-    def get_column_list_from_row(self, filtered_schema_row):
-        '''
-        Get all column names in a schema row
-        Appends table name in the column_list as well
-        '''
-        table_name_in_row_original = filtered_schema_row.table_name_original
-        table_name_in_row = filtered_schema_row.table_name_original
-        col_list = re.sub('\'', '', filtered_schema_row.column_list[1:-1]).split(', ')
-        col_list.append(table_name_in_row)
-        col_list.append(table_name_in_row_original)
-        
-        return col_list
     
     def get_scores(self, query, column_list_full):
-        '''
-        Get score based on number of words that are in query and the (colum list + table_name) list
-        '''
+        
+        #Get score based on number of words that are in query and the (colum list + table_name) list
+        
         scores = []
         for column_list in column_list_full:
             score = 0
             for word in query:
                 for column in column_list:
-                    col = self.lemmatizer.lemmatize(column, wordnet.NOUN)
+                    col = self.stemmer.stem(column)
                     if(word.startswith(col) or word.endswith(col)
                        or col.startswith(word) or col.endswith(word)):
                         score += 1    
@@ -99,16 +23,16 @@ class TableMapper():
         return scores_df
     
     def get_column_overlap_score(self, scores):
-        '''
-        Second iteration of scores dataframe to reduce the impact of ordering in table.
-        Takes in the scores dataframe and iterates through it and removes the words from query already matched.
-        '''
+        
+        #Second iteration of scores dataframe to reduce the impact of ordering in table.
+        #Takes in the scores dataframe and iterates through it and removes the words from query already matched.
+        
         final = []
         for column_list, query in zip(scores.col_list.to_list(), scores.query_words.to_list()):
             score_temp = 0
             for word in query[:]:
                 for column in column_list[:]:
-                    col = self.lemmatizer.lemmatize(column, wordnet.NOUN)
+                    col = self.stemmer.stem(column)
                     if(word.startswith(col) or word.endswith(col)
                        or col.startswith(word) or col.endswith(word)):
                     # if(word in col or col in word):
@@ -124,6 +48,7 @@ class TableMapper():
         # display(pd.DataFrame(final))
 
         return final 
+    
     
     def get_table_names_tql(self, s, query):
         '''
@@ -161,7 +86,7 @@ class TableMapper():
 
             # Getting actual table names from the SQL query
             sql_tokens = [
-                            token for token in re.sub('[^a-zA-Z_ ]', '', t.SQL.iloc[i]).lower().split() \
+                            token for token in re.sub('[^a-zA-Z_.0-9 ]', '', t.SQL.iloc[i]).lower().split() \
                             if ((token not in self.stop_words) and len(token) > 2)
                          ]
             actual_list = []
