@@ -7,8 +7,9 @@ from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer, PorterStemmer
-from fuzzywuzzy import fuzz
 
+import spacy
+nlp = spacy.load("en_core_web_sm")
 
 import pandas as pd
 
@@ -55,13 +56,12 @@ class TableMapper():
         '''
         words = word_tokenize(sentence)
         pos_tags = nltk.pos_tag(words)
-        lemmatized_words = [self.lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)) for word, pos in pos_tags 
-                            if not word.lower() and len(word) > 3 in self.stop_words]
+        lemmatized_words = [self.lemmatizer.lemmatize(word, self.get_wordnet_pos(pos)) \
+                            for word, pos in pos_tags if not word.lower() in self.stop_words]
         
-        filtered_sentence = [self.stemmer.stem(w) for w in words if not w.lower() and len(w) > 3 in self.stop_words]
-        filtered_sentence = ' '.join(filtered_sentence)
-        return list(set((re.sub('[^a-zA-Z ]', '', filtered_sentence.lower()) + ' ' +\
-                re.sub("[^a-zA-Z ]", '', ' '.join(lemmatized_words)).lower()).split()))
+        lemmatized = ' '.join(lemmatized_words)
+        
+        return re.sub('[^a-zA-Z ]', '', (lemmatized)).split()
     
     
     def get_column_list_from_row(self, filtered_schema_row):
@@ -77,19 +77,19 @@ class TableMapper():
         
         return col_list
     
-    
     def get_scores(self, query, column_list_full):
-        
-        #Get score based on number of words that are in query and the (colum list + table_name) list
-        
+        '''
+        Get score based on number of words that are in query and the (colum list + table_name) list
+        '''
         scores = []
         for column_list in column_list_full:
             score = 0
             for word in query:
                 for column in column_list:
-                    col = self.lemmatizer.lemmatize(column, wordnet.NOUN)
-                    if(word.startswith(col) or word.endswith(col)
-                       or col.startswith(word) or col.endswith(word)):
+                    wrd = self.stemmer.stem(word)
+                    col = self.stemmer.stem(column)
+                    if(wrd.startswith(col) or wrd.endswith(col)
+                       or col.startswith(wrd) or col.endswith(wrd)):
                         score += 1    
             if(score > 0):
                 scores.append([query, column_list, score])
@@ -97,24 +97,23 @@ class TableMapper():
         scores_df = pd.DataFrame(scores, columns = ['query_words', 'col_list', 'score'])\
                     .sort_values(by = 'score', ascending = False)\
                     .reset_index(drop = True)
-        # display(scores_df)
+    
         return scores_df
     
     def get_column_overlap_score(self, scores):
-        
-        #Second iteration of scores dataframe to reduce the impact of ordering in table.
-        #Takes in the scores dataframe and iterates through it and removes the words from query already matched.
-        
+        '''
+        Second iteration of scores dataframe to reduce the impact of ordering in table.
+        Takes in the scores dataframe and iterates through it and removes the words from query already matched.
+        '''
         final = []
         for column_list, query in zip(scores.col_list.to_list(), scores.query_words.to_list()):
             score_temp = 0
             for word in query[:]:
                 for column in column_list[:]:
-                    col = self.lemmatizer.lemmatize(column, wordnet.NOUN)
-                    if(word.startswith(col) or word.endswith(col)
-                       or col.startswith(word) or col.endswith(word)):
-                    # if(word in col or col in word):
-                        # print(word, column)
+                    wrd = self.stemmer.stem(word)
+                    col = self.stemmer.stem(column)
+                    if(wrd.startswith(col) or wrd.endswith(col)
+                       or col.startswith(wrd) or col.endswith(wrd)):
                         score_temp += 1
                         query.remove(word)
                         break
@@ -123,17 +122,29 @@ class TableMapper():
             if(score_temp > 0):
                 final.append([column_list, query, score_temp])
                 
-        # display(pd.DataFrame(final))
-
-        return final 
+        return final
+            
     
+    def get_replace_ner(self, query):
+        
+        doc = nlp(query)
+        for ent in doc.ents:
+            query = query.replace(ent.text, spacy.explain(ent.label_))    
+        
+        query = re.sub('[^a-zA-Z ]', '', query.lower())
+        
+        return query
+        
     
-    def get_table_names_tql(self, s, query):
+    def get_table_names_tql(self, s, query, verbosity):
         '''
         returns table names extracted from the TQL mapped with the schema details
         '''
         
+        query = self.get_replace_ner(query)
         stop_words_query = self.remove_stopwords(query)
+        if(verbosity == 1):
+            print(stop_words_query)
         
         # for each table gets the column_list for table in filtered schema dataframe
         col_list = s.apply(lambda x : self.get_column_list_from_row(x), axis = 1).to_list()
@@ -160,11 +171,11 @@ class TableMapper():
         # for each query
         for i in range(len(t)):
                 
-            table_names_mapping = [k.lower() for k in self.get_table_names_tql(s, t.TQL.iloc[i])]
+            table_names_mapping = [k.lower() for k in self.get_table_names_tql(s, t.TQL.iloc[i], verbosity)]
 
             # Getting actual table names from the SQL query
             sql_tokens = [
-                            token for token in re.sub('[^a-zA-Z_ ]', '', t.SQL.iloc[i]).lower().split() \
+                            token for token in re.sub('[^a-zA-Z_.0-9 ]', '', t.SQL.iloc[i]).lower().split() \
                             if ((token not in self.stop_words) and len(token) > 2)
                          ]
             actual_list = []
@@ -172,16 +183,20 @@ class TableMapper():
                 for table_name in s.table_name_original.values:
                     if(token == table_name.lower()):
                         actual_list.append(token.lower())
-
+            # print(actual_list)
+            
             # If we want to check subset, uncomment this if-else 
-            # if(not set(actual_list).issubset(set(table_names_mapping))):
+            if(set(actual_list).issubset(set(table_names_mapping))):
+                count_excess = abs(len(actual_list) - len(table_names_mapping))
+            
+            # if(s:
             if(list(set(actual_list)) != list(set(table_names_mapping))):
                 if(verbosity == 1):
                     print(t.TQL.iloc[i])
                     print(t.SQL.iloc[i])
                     print(self.remove_stopwords(t.TQL.iloc[i]))
                     print('----------------------------------------------------------------------------')
-                    print('Actual List', actual_list, '| Predicted List', table_names_mapping, i)
+                    print('Actual List', list(set(actual_list)), '| Predicted List', list(set(table_names_mapping)), i)
                     print('----------------------------------------------------------------------------')
                 
                 else:
@@ -189,4 +204,4 @@ class TableMapper():
             else:
                 count += 1
 
-        return count, len(t)
+        return count, len(t), count_excess
