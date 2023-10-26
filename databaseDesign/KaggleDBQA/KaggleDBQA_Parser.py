@@ -6,7 +6,7 @@ import json
 sys.path.append('')
 
 def parse_schema():
-    tables_json = pd.read_json("KaggleDBQA_tables.json")
+    tables_json = pd.read_json("gs://data_tql/kaggle-dbqa/KaggleDBQA_tables.json")
     row_table = []
 
     for i in tables_json.iterrows():
