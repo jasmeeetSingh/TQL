@@ -39,7 +39,7 @@ def format_example(example):
 
     example[
         "text"
-    ] = f"{instruction}\n\n{q_header}\n{q}\n\n{c_header}\n{c}\n\n{a_header}\n{a}"
+    ] = f"{instruction}\n\n{q_header}\n{q}\n\n{a_header}\n{a}"
 
     return example
 
