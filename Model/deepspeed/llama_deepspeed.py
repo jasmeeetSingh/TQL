@@ -27,7 +27,7 @@ import pandas as pd
 
 
 import sys
-sys.path.append('/home/jupyter/github/TQL/')
+sys.path.append('/home/jupyter/TQL/')
 from utils.token import hub_token
 
 queryData = pd.read_csv('gs://data_tql/spider/processed/spiderQueryData.csv')
@@ -78,8 +78,7 @@ def create_schema_natural_language(row):
     schema_natural_language = f"Given the Table {table_name} having columns as {', '.join(column_list_with_datatype)} which has {primary_key}"
     return schema_natural_language
 
-tableData['schema_natural_language'] = tableData.apply(create_schema_natural_language, axis = 1)
-tableData.head(3)
+tableData['context'] = tableData.apply(create_schema_natural_language, axis = 1)
 
 all_schemas = tableData['schema_id'].unique()
 schema_table_query = {}
@@ -99,7 +98,8 @@ tokenizer = AutoTokenizer.from_pretrained(
     use_fast=False,
     token = hub_token
 )
-tokenizer.pad_token = tokenizer.unk_token
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = "right"
 
 # Define a custom dataset for training
 class SQLDataset(Dataset):
@@ -138,7 +138,6 @@ train_input_texts, val_input_texts, train_target_queries, val_target_queries = t
 train_dataset = SQLDataset(train_input_texts, train_target_queries, tokenizer)
 val_dataset = SQLDataset(val_input_texts, val_target_queries, tokenizer)
 
-
 data_module = dict(train_dataset=train_dataset, eval_dataset=val_dataset)
 
 train_args = TrainingArguments(
@@ -152,15 +151,15 @@ train_args = TrainingArguments(
     fp16=True,
     lr_scheduler_type="constant_with_warmup",
     warmup_steps=5,
-    save_steps=50,
+    save_steps=1000,
     save_strategy="steps",
     save_total_limit=3,
-    logging_steps=10,
+    logging_steps=1000,
     hub_model_id="kargil8320/TQL",
     hub_strategy="checkpoint",
     hub_private_repo=True,
     push_to_hub=True,
-    deepspeed="/home/jupyter/github/TQL/Model/deepspeed/ds_config_zero3.json",
+    deepspeed="/home/jupyter/TQL/Model/deepspeed/ds_config_zero3.json",
     num_train_epochs = 3,
     hub_token = hub_token
 )
