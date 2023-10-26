@@ -20,7 +20,7 @@ from utils.token import hub_token
 
 model_id = "meta-llama/Llama-2-7b-chat-hf"
 dataset_name="naman1011/spider"
-sample=1000
+sample=None
 train_size=0.85
 lora_r=2
 lora_alpha=32
