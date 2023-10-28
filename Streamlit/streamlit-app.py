@@ -3,6 +3,10 @@ import sys
 import os
 from transformers import AutoModelForCausalLM, AutoConfig, AutoTokenizer, pipeline
 
+import sys
+sys.path.append('../main/')
+from TQLRunner import TQLRunner
+
 def style():
     st.markdown(
         """
@@ -84,19 +88,23 @@ def main():
         st.subheader("New Query")
 
         # Select a test schema from a dropdown
-        schema = st.selectbox("Select a test schema from dropdown", ["Schema 1", "Schema 2", "Schema 3"])
+        schema = st.selectbox("Select a test schema from dropdown", ["college_2", "Schema 2", "Schema 3"])
 
         # Enter query
         query = st.text_area("Enter query:", height=200)
-
+    
         if st.button("Run Query"):
             if query.strip() == "":
                 st.error("Please enter a query.")
             else:
                 # Call your function to convert TQL to SQL
-                generated_sql = run_tql_to_sql(query)
-                st.success("Generated SQL Query:")
-                st.code(generated_sql, language="sql")
+                processed_text = ''
+                try: 
+                    tqlRunner = TQLRunner(schema)
+                    processed_text = tqlRunner.get_SQL_query(query)
+                    # generated_sql = run_tql_to_sql(query)
+                    st.success("Generated SQL Query:")
+                    st.code(processed_text, language="sql")
 
 if __name__ == '__main__':
     main()
