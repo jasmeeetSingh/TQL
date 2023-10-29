@@ -1,17 +1,36 @@
 import sys
+import os
 sys.path.append('../utils/')
 sys.path.append('../queryProcessing/')
+sys.path.append('/home/jupyter/TQL/')
 
 from utils import *
 from TableMapper import TableMapper
 
+import pandas as pd
+import numpy as np
 from tqdm.notebook import tqdm
 tqdm.pandas()
 
-from transformers import T5Tokenizer, T5ForConditionalGeneration
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.tensorboard import SummaryWriter
+from typing import Dict
+from sklearn.model_selection import train_test_split
+from dataclasses import dataclass, field
+from typing import cast, Optional
+from datasets import load_dataset
+from transformers import (
+    AutoModelForCausalLM,
+    AutoTokenizer,
+    pipeline
+)
+from transformers.trainer_pt_utils import LabelSmoother
+from peft import PeftConfig, PeftModel
+
+IGNORE_TOKEN_ID = LabelSmoother.ignore_index
+from token import *
+
 
 class TQLRunner():
     
@@ -28,11 +47,77 @@ class TQLRunner():
         print('All libraries loaded')
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.tokenizer = T5Tokenizer.from_pretrained('t5-small')
-        self.model = torch.load('model.pt', map_location=torch.device(self.device))
-        
+        self.model, self.tokenizer, self.base_model = \
+                self.load_model(
+                    'naman1011/TQL', 
+                    torch.cuda.device_count(), 
+                    max_gpu_memory=None
+                )
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.padding_side = "right"
+            
         print('LLM Model initialized')
         
+        
+    def format_example(self, example):
+        instruction = (
+            "Given the context, answer the question by writing the appropriate SQL code."
+        )
+        q_header = "### Question"
+        a_header = "### Answer"
+
+        q = example
+
+        return f"{instruction}\n\n{q_header}\n{q}\n\n{a_header}\n"
+
+    def get_gpu_memory(self, max_gpus=None):
+        """Get available memory for each GPU."""
+        import torch
+        gpu_memory = []
+        num_gpus = (
+            torch.cuda.device_count()
+            if max_gpus is None
+            else min(max_gpus, torch.cuda.device_count())
+        )
+        for gpu_id in range(num_gpus):
+            with torch.cuda.device(gpu_id):
+                device = torch.cuda.current_device()
+                gpu_properties = torch.cuda.get_device_properties(device)
+                total_memory = gpu_properties.total_memory / (1024**3)
+                allocated_memory = torch.cuda.memory_allocated() / (1024**3)
+                available_memory = total_memory - allocated_memory
+                gpu_memory.append(available_memory)
+        return gpu_memory
+
+    def load_model(self, model_path, num_gpus, max_gpu_memory=None):
+
+        kwargs = {"torch_dtype": torch.float16}
+        kwargs["device_map"] = "auto"
+        if max_gpu_memory is None:
+            kwargs[
+                "device_map"
+            ] = "sequential"  # This is important for not the same VRAM sizes
+            available_gpu_memory = self.get_gpu_memory(num_gpus)
+            kwargs["max_memory"] = {
+                i: str(int(available_gpu_memory[i] * 0.85)) + "GiB"
+                for i in range(num_gpus)
+            }
+        else:
+            kwargs["max_memory"] = {i: max_gpu_memory for i in range(num_gpus)}
+
+        config = PeftConfig.from_pretrained(model_path)
+        base_model_path = config.base_model_name_or_path
+        tokenizer = AutoTokenizer.from_pretrained(
+            base_model_path, use_fast=False
+        )
+        base_model = AutoModelForCausalLM.from_pretrained(
+            base_model_path,
+            low_cpu_mem_usage=True,
+            **kwargs,
+        )
+        model = PeftModel.from_pretrained(base_model, model_path)
+
+        return model, tokenizer, base_model
         
     def create_schema_natural_language(self, row):
 
@@ -79,20 +164,16 @@ class TQLRunner():
         task_prefix = 'Generate an SQL Query for'
         table_prompt = self.get_table_prompt(input_text)
         
-        final_prompt = task_prefix + ' ' + input_text + ' ' + table_prompt
+        final_prompt = input_text + ' ' + table_prompt
+        # print(final_prompt)
         
-        return final_prompt
+        return self.format_example(final_prompt)
         
         
     def get_SQL_query(self, input_text):
         
         prompt = self.get_final_prompt(input_text)
+        pipe = pipeline(task="text-generation", model=self.model, tokenizer=self.tokenizer)
+        result = pipe(f"<s>[INST] {prompt} [/INST]")
         
-        tokens = self.tokenizer(prompt, 
-                           return_tensors="pt", max_length=512, 
-                           truncation=True, padding="max_length")
-        
-        outputs = self.model.generate(input_ids=tokens.input_ids.to(self.device), max_new_tokens = 512)
-        predicted_query = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        return predicted_query
+        return (result[0]['generated_text'].split('[/INST]')[-1].split(';')[0].strip())

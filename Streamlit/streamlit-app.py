@@ -1,7 +1,8 @@
 import streamlit as st
 import sys
 import os
-from transformers import AutoModelForCausalLM, AutoConfig, AutoTokenizer, pipeline
+sys.path.append('..\\main\\')
+from TQLRunner import TQLRunner
 
 def style():
     st.markdown(
@@ -28,38 +29,6 @@ def style():
         unsafe_allow_html=True,
     )
 
-def format_example(example):
-    instruction = (
-        "Given the context, answer the question by writing the appropriate SQL code."
-    )
-    q_header = "### Question"
-    a_header = "### Answer"
-
-    q = example
-
-    return f"{instruction}\n\n{q_header}\n{q}\n\n{a_header}\n"
-
-def run_tql_to_sql(query):
-    try:
-        # Load the adapter configuration from the provided URL
-        adapter_config_url = 'https://huggingface.co/naman1011/TQL/raw/main/adapter_config.json'
-        adapter_config = AutoConfig.from_pretrained(adapter_config_url)
-        
-        # Load the model using the adapter configuration
-        model = AutoModelForCausalLM.from_pretrained('naman1011/TQL', config=adapter_config)
-        tokenizer = AutoTokenizer.from_pretrained('naman1011/TQL')
-
-        # Format the user's query
-        prompt = format_example(query)
-        
-        # Generate SQL query using the model
-        pipe = pipeline(task="text-generation", model=model, tokenizer=tokenizer)
-        generated_text = pipe(f"<s>[INST] {prompt} [/INST]")[0]['generated_text']
-        
-        return generated_text
-    except Exception as e:
-        return str(e)
-
 def main():
     st.set_page_config(
         page_title="TQL – Text to SQL",
@@ -84,19 +53,27 @@ def main():
         st.subheader("New Query")
 
         # Select a test schema from a dropdown
-        schema = st.selectbox("Select a test schema from dropdown", ["Schema 1", "Schema 2", "Schema 3"])
+        schema = st.selectbox("Select a test schema from dropdown", ["college_2", "Schema 2", "Schema 3"])
 
         # Enter query
         query = st.text_area("Enter query:", height=200)
-
+    
         if st.button("Run Query"):
             if query.strip() == "":
                 st.error("Please enter a query.")
             else:
                 # Call your function to convert TQL to SQL
-                generated_sql = run_tql_to_sql(query)
-                st.success("Generated SQL Query:")
-                st.code(generated_sql, language="sql")
+                processed_text = ''
+                try: 
+                    tqlRunner = TQLRunner(schema)
+                    processed_text = tqlRunner.get_SQL_query(query)
+                    print(processed_text)
+                    print(query)
+                    st.success("Generated SQL Query:")
+                    st.code(processed_text, language="sql")
+                except:
+                    st.success("Bad tatti bhai")
+                    
 
 if __name__ == '__main__':
     main()

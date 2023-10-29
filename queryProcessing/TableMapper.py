@@ -3,6 +3,8 @@ import re
 import nltk
 nltk.download('stopwords', quiet=True)
 nltk.download('punkt', quiet=True)
+nltk.download('averaged_perceptron_tagger', quiet = True)
+nltk.download('wordnet', quiet = True)
 from nltk.corpus import wordnet
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -136,7 +138,7 @@ class TableMapper():
         return query
         
     
-    def get_table_names_tql(self, s, query, verbosity):
+    def get_table_names_tql(self, s, query, verbosity = 0):
         '''
         returns table names extracted from the TQL mapped with the schema details
         '''
