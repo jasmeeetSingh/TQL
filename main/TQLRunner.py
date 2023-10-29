@@ -8,7 +8,7 @@ from TableMapper import TableMapper
 from tqdm.notebook import tqdm
 tqdm.pandas()
 
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+from transformers import AutoModelForCausalLM, AutoConfig, AutoTokenizer, pipeline
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -28,11 +28,21 @@ class TQLRunner():
         print('All libraries loaded')
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.tokenizer = T5Tokenizer.from_pretrained('t5-small')
-        self.model = torch.load('model.pt', map_location=torch.device(self.device))
         
+        print("Helloj")
+        # Load the adapter configuration from the provided URL
+        adapter_config_url = 'https://huggingface.co/naman1011/TQL/raw/main/adapter_config.json'
+        adapter_config = AutoConfig.from_pretrained(adapter_config_url)
+        
+        print("Hello kf4j")
+        # Load the model using the adapter configuration
+        self.model = AutoModelForCausalLM.from_pretrained('naman1011/TQL', config=adapter_config)
+        print("Hello 4j")
+        self.tokenizer = AutoTokenizer.from_pretrained('naman1011/TQL')
+        print("Hello kfr4j")
+            
         print('LLM Model initialized')
-        
+            
         
     def create_schema_natural_language(self, row):
 
@@ -87,6 +97,7 @@ class TQLRunner():
     def get_SQL_query(self, input_text):
         
         prompt = self.get_final_prompt(input_text)
+        print(prompt)
         
         tokens = self.tokenizer(prompt, 
                            return_tensors="pt", max_length=512, 
