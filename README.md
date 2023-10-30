@@ -47,6 +47,10 @@ Sometimes, the road to answers can be a bit bumpy. If TQL detects that your inpu
 
 ![TQL Error Handling](images/TQL-Error_Handling.jpeg)
 
+### Architechure
+
+<img width="720" alt="image" src="https://github.com/jasmeeetSingh/TQL/assets/58945986/e20d8e5f-d95d-455e-858f-2ca39f3cd3f3">
+
 ## The Models Behind TQL
 
 TQL relies on several models and approaches to perform its magic. These include:
