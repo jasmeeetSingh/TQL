@@ -80,7 +80,7 @@ gymnasium-notices==0.0.1
 h11==0.14.0
 htmlmin==0.1.12
 httplib2==0.22.0
-huggingface-hub==0.18.0
+huggingface-hub==0.15.1
 idna
 ImageHash==4.3.1
 imageio==2.28.0
