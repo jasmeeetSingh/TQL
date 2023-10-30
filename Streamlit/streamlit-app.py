@@ -1,7 +1,7 @@
 import streamlit as st
 import sys
 import os
-sys.path.append('..\\main\\')
+# sys.path.append('..\\main\\')
 from TQLRunner import TQLRunner
 
 def style():
