@@ -72,7 +72,7 @@ def main():
                     st.success("Generated SQL Query:")
                     st.code(processed_text, language="sql")
                 except:
-                    st.success("Bad tatti bhai")
+                    st.success("Bad error")
                     
 
 if __name__ == '__main__':
