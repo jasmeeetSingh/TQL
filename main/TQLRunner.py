@@ -140,6 +140,10 @@ class TQLRunner():
                             which has {primary_key}"
         return schema_natural_language
     
+
+    def get_schema_details(self):
+        return self.schema
+    
     
     def get_table_prompt(self, input_text):
         
