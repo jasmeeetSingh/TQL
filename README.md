@@ -33,6 +33,7 @@ Sample test case:
 The user inputs: ***What are the ids of the students who either registered or attended a course?***
 
 Output from ChatGPT
+
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/b08ad8d1-a9ff-470c-b24c-bdc512a06fe0)
 Although ChatGPT is able to generate the correct SQL query, it's not able to use the correct table names and only guesses what the table names would be. 
 
