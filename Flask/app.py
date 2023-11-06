@@ -1,28 +1,28 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 import sys
 sys.path.append('../main/')
-from TQLRunner import TQLRunner
+from TQLRunnerT5 import TQLRunner
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+# @app.route('/')
+# def home():
+#     return render_template('index.html')
 
-@app.route('/set_schema', methods=['POST'])
+@app.route('/api/data', methods=['POST'])
 def process_text():
-    schema = request.form['user_text'].strip()
-    query = request.form['user_text1'].strip()
+    schema = request.json.get("schema", "")
+    query = request.json.get("query", "").strip()
         
     processed_text = ''
     try:    
         tqlRunner = TQLRunner(schema)
         processed_text = tqlRunner.get_SQL_query(query)
-    except:
-        return render_template('failure.html', actual_text = query)
+    except Exception as e:
+        return jsonify({"final_SQL_query" : f'Query processing Failed with error message {e}'}), 200, {"Content-type" : "application/json"}
     
-    return render_template('results.html', processed_text=processed_text, actual_text = query)
+    return jsonify({"final_SQL_query" : processed_text}), 200, {"Content-type" : "application/json"}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host = 'localhost', port = '5000', debug=False)
