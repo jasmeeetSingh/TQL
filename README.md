@@ -45,7 +45,7 @@ Output from LLama2 model
 If we pass all the tables we have to a state-of-the-art LLama2 model, we still get an incorrect query which doesn't give us correct results
 
 
-***Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process. ***
+***Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process.***
 
 
 Output from **TQL**
