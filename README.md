@@ -35,16 +35,23 @@ The user inputs: ***What are the ids of the students who either registered or at
 Output from ChatGPT
 
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/b08ad8d1-a9ff-470c-b24c-bdc512a06fe0)
+
 Although ChatGPT is able to generate the correct SQL query, it's not able to use the correct table names and only guesses what the table names would be. 
 
 Output from LLama2 model
+
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/531db7a3-4afb-42c1-8378-bab2edeeee38)
+
 If we pass all the tables we have to a state-of-the-art LLama2 model, we still get an incorrect query which doesn't give us correct results
 
-Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process. 
+
+***Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process. ***
+
 
 Output from **TQL**
+
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/d361f4cd-073b-49ed-bec9-29646a59bcc6)
+
 Since TQL is able to understand the context in a data model, it is able to correctly map the right set of tables and which is then passed to a LLama2 model for query generation.
 
 
@@ -56,7 +63,7 @@ The journey through TQL involves the following steps:
 
 TQL's journey begins with your simple request. Users provide queries in plain, everyday language. TQL is ready to interpret these queries and transform them into structured SQL commands.
 
-![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/c98b48aa-4f8e-4359-9601-ff4452630a2e)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/d1316b23-bc27-4a1e-8bb1-59802036a6d7)
 
 ### 2. Database Schema Integration
 
@@ -65,6 +72,8 @@ TQL is more than a language translator; it's a database expert. It understands t
 ### 3. SQL Query Generation
 
 With all the pieces in place, TQL generates a tailored SQL query that aligns perfectly with your natural language request. This process guarantees accurate and reliable results.
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/c98b48aa-4f8e-4359-9601-ff4452630a2e)
 
 ### 4. TQL Error Handling
 
@@ -78,7 +87,7 @@ Sometimes, the road to answers can be a bit bumpy. If TQL detects that your inpu
 
 ## The Models Behind TQL
 
-TQL relies on two seperate workflows to perform its magic. These include:
+TQL relies on two separate workflows to perform its magic. These include:
 
 - **Mapping Logic**: To understand the structure and relationships within the data.
 - **SQL Generation**: To generate accurate SQL queries tailored to the input text.
