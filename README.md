@@ -21,6 +21,32 @@ Welcome to the repository for **TQL (Table Query Language)** – an innovative p
 
 In a world driven by data, the ability to access and manipulate databases is invaluable. TQL offers a natural language interface, turning everyday language into powerful SQL commands. Whether you are a seasoned data professional, a researcher seeking insights, a developer streamlining database interactions, or an everyday user in search of specific information, TQL makes data retrieval accessible to all.
 
+## Comparison of TQL output with other out solutions in the market
+
+For any given query, TQL is able to parse and accurately map the schema information to understand the data model context of any given underlying schema. 
+The tool is capable of handling any given schema, no matter how many tables, columns, or rows in a dataset. 
+
+Our unique approach to understanding the data model concept means we never have to read the underlying data. ***We just need the table names and the column names in the schema.***
+
+Sample test case: 
+
+The user inputs: ***What are the ids of the students who either registered or attended a course?***
+
+Output from ChatGPT
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/b08ad8d1-a9ff-470c-b24c-bdc512a06fe0)
+Although ChatGPT is able to generate the correct SQL query, it's not able to use the correct table names and only guesses what the table names would be. 
+
+Output from LLama2 model
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/531db7a3-4afb-42c1-8378-bab2edeeee38)
+If we pass all the tables we have to a state-of-the-art LLama2 model, we still get an incorrect query which doesn't give us correct results
+
+Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process. 
+
+Output from **TQL**
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/d361f4cd-073b-49ed-bec9-29646a59bcc6)
+Since TQL is able to understand the context in a data model, it is able to correctly map the right set of tables and which is then passed to a LLama2 model for query generation.
+
+
 ## How TQL Works
 
 The journey through TQL involves the following steps:
@@ -29,7 +55,7 @@ The journey through TQL involves the following steps:
 
 TQL's journey begins with your simple request. Users provide queries in plain, everyday language. TQL is ready to interpret these queries and transform them into structured SQL commands.
 
-![TQL Initial UI](images/TQL-UI.jpeg)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/c98b48aa-4f8e-4359-9601-ff4452630a2e)
 
 ### 2. Database Schema Integration
 
@@ -39,13 +65,11 @@ TQL is more than a language translator; it's a database expert. It understands t
 
 With all the pieces in place, TQL generates a tailored SQL query that aligns perfectly with your natural language request. This process guarantees accurate and reliable results.
 
-![TQL Results](images/TQL-results.jpeg)
-
 ### 4. TQL Error Handling
 
 Sometimes, the road to answers can be a bit bumpy. If TQL detects that your input text doesn't relate to any database or schema, it will kindly ask for valid input text to ensure a successful query.
 
-![TQL Error Handling](images/TQL-Error_Handling.jpeg)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/5c1bf95b-cc1c-40be-9cd5-80a65b29a534)
 
 ### Architechure
 
@@ -53,18 +77,19 @@ Sometimes, the road to answers can be a bit bumpy. If TQL detects that your inpu
 
 ## The Models Behind TQL
 
-TQL relies on several models and approaches to perform its magic. These include:
+TQL relies on two seperate workflows to perform its magic. These include:
 
-- **Natural Language Processing (NLP)**: To interpret and translate user queries.
 - **Mapping Logic**: To understand the structure and relationships within the data.
-- **Machine Learning**: To generate accurate SQL queries tailored to the input text.
+- **SQL Generation**: To generate accurate SQL queries tailored to the input text.
 
 ## The Models tested when building TQL
 
 We tested the TQL logic on quite a few models, some of these include: 
 
-- **T5**: To interpret and translate user queries.
-- **T5- For code generation**: To understand the structure and relationships within the data.
+- **T5**
+- **T5- For code generation**
+- **Llama2**
+- **LLama2 Chat**
 
 ## The Road Ahead
 
@@ -73,7 +98,6 @@ As we look to the future, TQL is far from reaching its final destination. There'
 - **Advanced NLP Models**: Leveraging state-of-the-art NLP models for even more accurate translations.
 - **Enhanced User Experience**: Continuously refining the user interface to make TQL even more user-friendly.
 - **Support for Multiple Databases**: Expanding compatibility with various database management systems.
-- **Community Contributions**: We welcome contributions from the community to enhance TQL and make it even more versatile.
 
 ## Repository Structure
 
