@@ -8,6 +8,7 @@ Welcome to the repository for **TQL (Table Query Language)** – an innovative p
 
 - [Project Overview](#project-overview)
 - [Why TQL?](#why-tql)
+- [Data Overview](#data-overview)
 - [How TQL Works](#how-tql-works)
 - [The Models Behind TQL](#the-models-behind-tql)
 - [The Road Ahead](#the-road-ahead)
@@ -16,6 +17,29 @@ Welcome to the repository for **TQL (Table Query Language)** – an innovative p
 ## Project Overview
 
 **TQL (Table Query Language)** is a cutting-edge initiative that offers a seamless transition from natural language understanding to precise SQL queries. With TQL, you can input plain English text and watch it transform into intelligently crafted SQL queries, all while adhering to the underlying database schema. Our project aims to democratize the process of querying databases, making it accessible even to individuals with minimal SQL expertise.
+
+## Data Overview
+
+We mainly used two data sources:
+
+1. Spider Dataset
+   
+2. KaggleDBQA
+
+We explored the WikiSQL as well, but since our area of research was multi-tabled schemas, we used first two data sources.
+
+
+We split the data into 2 CSV files:
+
+1. CSV containing schemas.
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/f863e55c-0bca-4aa9-b06e-3d8050d13c4f)
+
+
+2. CSV containing train-test data - All the queries across the two datasets that are used for training and validation.
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/85bb31db-8008-4044-b4f0-f968aa70dbec)
+
 
 ## Why TQL?
 
@@ -45,7 +69,7 @@ Output from LLama2 model
 If we pass all the tables we have to a state-of-the-art LLama2 model, we still get an incorrect query which doesn't give us correct results
 
 
-***Note: Passing all the tables in a schema would be highly impractical. since passing details of 100s of tables in a schema would be a very inefficient process.***
+***Note: Passing all the tables in a schema would be highly impractical. Since passing details of 100s of tables in a schema would be a very inefficient process.***
 
 
 Output from **TQL**
