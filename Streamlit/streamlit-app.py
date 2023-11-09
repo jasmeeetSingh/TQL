@@ -1,8 +1,14 @@
 import streamlit as st
 import sys
 import os
-# sys.path.append('..\\main\\')
+sys.path.append('../main/')
 from TQLRunner import TQLRunner
+
+sys.path.append('../utils/')
+from utils import *
+import requests
+import json
+import pandas as pd
 
 def style():
     st.markdown(
@@ -29,6 +35,8 @@ def style():
         unsafe_allow_html=True,
     )
 
+
+
 def main():
     st.set_page_config(
         page_title="TQL – Text to SQL",
@@ -38,13 +46,16 @@ def main():
     style()
 
     st.title("TQL – Text to SQL")
-
+    
+    if "old_queries" not in st.session_state:
+        st.session_state['old_queries'] = []
     # Layout the sidebar for older queries
     with st.sidebar:
-        st.markdown("## Older Queries")
-        st.text("Query 1: SELECT * FROM table1 WHERE column1 = 'value1'")
-        st.text("Query 2: SELECT column1, column2 FROM table2 WHERE column3 = 'value2'")
-        st.text("Query 3: ...")
+        st.markdown("# Older Queries")
+        for i in st.session_state['old_queries']:
+            for j in i:
+                st.markdown(j)
+            st.text('----')
 
     # Layout the main content area
     col1, col2 = st.columns(2)
@@ -53,7 +64,16 @@ def main():
         st.subheader("New Query")
 
         # Select a test schema from a dropdown
-        schema = st.selectbox("Select a test schema from dropdown", ["college_2", "Schema 2", "Schema 3"])
+        schema = st.selectbox("Select a test schema from dropdown", ["college_2", "yelp", "student_assessment"])
+        q, s = get_spider_schema_table_files()
+        s = s[s['schema_id'] == schema][['table_name', 'primary_key', 'column_list', 'foreign_keys']].reset_index(drop = True)
+        s = s.rename(columns = {
+            'table_name' : 'Name of Table', 
+            'primary_key' : 'Primary Key', 
+            'column_list': 'List of Columns', 
+            'foreign_keys' : 'Foreign Keys'
+        })
+        st.dataframe(s)
 
         # Enter query
         query = st.text_area("Enter query:", height=200)
@@ -64,15 +84,15 @@ def main():
             else:
                 # Call your function to convert TQL to SQL
                 processed_text = ''
-                try: 
-                    tqlRunner = TQLRunner(schema)
-                    processed_text = tqlRunner.get_SQL_query(query)
-                    print(processed_text)
-                    print(query)
-                    st.success("Generated SQL Query:")
-                    st.code(processed_text, language="sql")
-                except:
-                    st.success("Bad error")
+                url_api = 'https://1d73-34-69-119-5.ngrok-free.app/api/data'
+                response = requests.post(url_api, json = {"schema" : schema, "query" : query})
+                print(response.content)
+                st.success("Generated SQL Query:")
+                st.code(json.loads(response.content)['final_SQL_query'], language="sql")
+                st.session_state['old_queries'].append([
+                    ':gray[**Question:**] ' + query, 
+                     ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
+                ])
                     
 
 if __name__ == '__main__':
