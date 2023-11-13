@@ -18,7 +18,7 @@ sys.path.append('/home/jupyter/TQL/')
 from utils.token import hub_token
 
 
-model_id = "defog/sqlcoder2"
+model_id = "defog/sqlcoder-7b"
 dataset_name="jasmeeetsingh/sql-spider-kaggledbqa-with-context"
 sample=None
 train_size=0.85
@@ -29,7 +29,7 @@ seed=42
 
 def format_example(example):
     instruction = (
-        "Given the context, answer the question by writing the appropriate SQL code."
+        "Generate an accurate SQL query to answer the following question using only the given tables: "
     )
     q_header = "### Question"
     a_header = "### Answer"
@@ -69,9 +69,9 @@ def main():
     train_args = TrainingArguments(
         output_dir="/home/jupyter/New_Model",
         optim="adamw_torch",
-        per_device_train_batch_size=1,
+        per_device_train_batch_size=2,
         remove_unused_columns=False,
-        learning_rate=1e-5,
+        learning_rate=0.0001,
         gradient_checkpointing=True,
         gradient_accumulation_steps=1,
         fp16=True,
@@ -81,12 +81,12 @@ def main():
         save_strategy="steps",
         save_total_limit=3,
         logging_steps=1000,
-        hub_model_id="jasmeeetsingh/TQL",
+        hub_model_id="jasmeeetsingh/TQL_2",
         hub_strategy="checkpoint",
         hub_private_repo=False,
         push_to_hub=True,
         deepspeed="/home/jupyter/TQL/Model/deepspeed/ds_config_zero3.json",
-        num_train_epochs = 3,
+        num_train_epochs = 10,
         hub_token = hub_token
 )
 
@@ -116,7 +116,7 @@ def main():
         lora_dropout=lora_dropout,
         bias="none",
         task_type="CASUAL_LM",
-        target_modules = ["c_proj", "c_attn", "q_attn"]
+        target_modules = ["q_proj", "k_proj", "v_proj"]
     )
 
     # loading the base model
