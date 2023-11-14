@@ -1,9 +1,6 @@
 import streamlit as st
 import sys
 import os
-sys.path.append('../main/')
-from TQLRunner import TQLRunner
-
 sys.path.append('../utils/')
 from utils import *
 import requests
@@ -119,27 +116,28 @@ def main():
 
                 try:
                     s = parse_excel_file(uploaded_file)
-                    s = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)
-                    s = s.rename(columns = {
+                    show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+                    .rename(columns = {
                         'table_name' : 'Name of Table', 
                         'primary_key' : 'Primary Key', 
                         'column_list': 'List of Columns', 
                         'foreign_keys' : 'Foreign Keys'
                     })
-                    st.dataframe(s)
+                    st.dataframe(show_df)
                 except Exception as e:
                     st.error(f"Error while uploading the file: {e}")
                     
         else:
             q, s = get_spider_schema_table_files()
-            s = s[s['schema_id'] == schema][['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+            s = s[s['schema_id'] == schema]
+            show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
             .rename(columns = {
                 'table_name' : 'Name of Table', 
                 'primary_key' : 'Primary Key', 
                 'column_list': 'List of Columns', 
                 'foreign_keys' : 'Foreign Keys'
             })
-            st.dataframe(s)
+            st.dataframe(show_df)
 
         # Enter query
         query = st.text_area("Enter query:", height=200)
@@ -150,21 +148,15 @@ def main():
             else:
                 # Call your function to convert TQL to SQL
                 processed_text = ''
+                url_api = 'https://7b9d-34-173-188-113.ngrok-free.app/api/data'
+                response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
+                print(response.content)
                 st.success("Generated SQL Query:")
                 st.code(json.loads(response.content)['final_SQL_query'], language="sql")
                 st.session_state['old_queries'].append([
                     ':gray[**Question:**] ' + query, 
                      ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
                 ])
-                # url_api = 'https://1d73-34-69-119-5.ngrok-free.app/api/data'
-                # response = requests.post(url_api, json = {"schema" : schema, "query" : query})
-                # print(response.content)
-                # st.success("Generated SQL Query:")
-                # st.code(json.loads(response.content)['final_SQL_query'], language="sql")
-                # st.session_state['old_queries'].append([
-                #     ':gray[**Question:**] ' + query, 
-                #      ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
-                # ])
                     
 
 if __name__ == '__main__':

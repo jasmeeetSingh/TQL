@@ -75,7 +75,12 @@ class TableMapper():
         '''
         table_name_in_row_original = filtered_schema_row.table_name_original
         table_name_in_row = filtered_schema_row.table_name_original
-        col_list = re.sub('\'', '', filtered_schema_row.column_list[1:-1]).split(', ')
+        
+        if(isinstance(filtered_schema_row.column_list, list)):
+            col_list = filtered_schema_row.column_list
+        else:
+            col_list = re.sub('\'', '', filtered_schema_row.column_list[1:-1]).split(', ')
+        
         col_list.append(table_name_in_row_original)
         col_list.append(table_name_in_row_original)
         col_list.append(table_name_in_row_original)
@@ -154,7 +159,7 @@ class TableMapper():
         stop_words_query = self.remove_stopwords(query)
         if(verbosity == 1):
             print(query, ' | ', stop_words_query)
-        
+       
         # for each table gets the column_list for table in filtered schema dataframe
         col_list = s.apply(lambda x : self.get_column_list_from_row(x), axis = 1).to_list()
         
@@ -167,7 +172,7 @@ class TableMapper():
         table_names_mapping = []
         for j in over_lap_score:
             table_names_mapping.append(j[0][-1])
-            
+    
         return table_names_mapping
         
     
