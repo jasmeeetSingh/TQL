@@ -28,16 +28,21 @@ class TQLRunner():
         print('LLM Model initialized')
         
     
-    def set_schema(self, schema_id):
+    def set_schema(self, schema_id, data_frame = None):
         
-        if(schema_id is None):
+        if(schema_id == 'Excel Upload'):
+            self.s, self.t = data_frame, None
+            self.tableMapper = TableMapper(self.t, self.s)
+        
+        elif(schema_id is None):
             raise Exception("Schema ID is needed")
+        
+        else:
+            self.query, self.schema = get_spider_schema_table_files()
+            self.tableMapper = TableMapper(self.query, self.schema)
 
-        self.query, self.schema = get_spider_schema_table_files()
-        self.tableMapper = TableMapper(self.query, self.schema)
-
-        self.s, self.t = self.tableMapper.get_filtered_schema(schema_id)
-
+            self.s, self.t = self.tableMapper.get_filtered_schema(schema_id)    
+        
         print('All libraries loaded')
 
     def create_schema_natural_language(self, row):
@@ -45,9 +50,9 @@ class TQLRunner():
         schema_id = row['schema_id']
         table_name = row['table_name']
         primary_key = row['primary_key']
-        column_list = eval(row['column_list_original'])
-        datatype_list = eval(row['column_datatypes'])
-        foreign_key = eval(row['foreign_keys'])
+        column_list = eval(str(row['column_list_original']))
+        datatype_list = eval(str(row['column_datatypes']))
+        foreign_key = eval(str(row['foreign_keys']))
 
         column_list_with_datatype = []
         for column, datatype in zip(column_list, datatype_list):
@@ -67,6 +72,7 @@ class TQLRunner():
 
         table_names_from_tql = self.tableMapper.get_table_names_tql(self.s, input_text)
 
+        print(table_names_from_tql)
         if(len(table_names_from_tql) == 0):
             raise Exception("No tables found, please repharse the query and try again")
 
@@ -85,6 +91,7 @@ class TQLRunner():
 
         table_prompt = self.get_table_prompt(input_text)
         
+        print(table_prompt)
         prompt = f"""\
             ### Instructions:
             Your task is convert a question into a SQL query, given a Postgres database schema.\
@@ -117,7 +124,7 @@ class TQLRunner():
             num_return_sequences=1,
             eos_token_id=eos_token_id,
             pad_token_id=eos_token_id,
-            max_new_tokens=400,
+            max_new_tokens=200,
             do_sample=False,
             num_beams=5
         )
