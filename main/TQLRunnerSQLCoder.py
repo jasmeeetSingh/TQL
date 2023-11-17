@@ -21,7 +21,8 @@ class TQLRunner():
         self.tokenizer = AutoTokenizer.from_pretrained("defog/sqlcoder-7b")
         self.model = \
             AutoModelForCausalLM.from_pretrained(
-                "defog/sqlcoder-7b", device_map="auto"
+                "defog/sqlcoder-7b", device_map="auto", 
+                torch_dtype=torch.float16
             )
         # self.model.to(self.device)
 
@@ -72,7 +73,6 @@ class TQLRunner():
 
         table_names_from_tql = self.tableMapper.get_table_names_tql(self.s, input_text)
 
-        print(table_names_from_tql)
         if(len(table_names_from_tql) == 0):
             raise Exception("No tables found, please repharse the query and try again")
 
@@ -90,15 +90,15 @@ class TQLRunner():
     def get_final_prompt(self, input_text):
 
         table_prompt = self.get_table_prompt(input_text)
-        
-        print(table_prompt)
+
         prompt = f"""\
             ### Instructions:
-            Your task is convert a question into a SQL query, given a Postgres database schema.\
+            Your task is convert a question into a SQL query, given a database schema.\
             Adhere to these rules:
             - **Deliberately go through the question and database schema word by word** to appropriately answer the question
             - **Use Table Aliases** to prevent ambiguity. For example, `SELECT table1.col1, table2.col1 FROM table1 JOIN table2 ON table1.id = table2.id`.
             - When creating a ratio, always cast the numerator as float
+            - Do not use NULLS LAST
 
             ### Input:
             Generate a SQL query that answers the question '{input_text}`.\n
@@ -124,10 +124,10 @@ class TQLRunner():
             num_return_sequences=1,
             eos_token_id=eos_token_id,
             pad_token_id=eos_token_id,
-            max_new_tokens=200,
-            do_sample=False,
-            num_beams=5
+            max_new_tokens=60,
+            do_sample=True,
+            num_beams=3
         )
         outputs = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
         torch.cuda.empty_cache()
-        return outputs[0].split("```sql")[-1].split("```")[0].split(";")[0].strip()
+        return outputs[0].split("```sql")[-1].split("```")[0].split(";")[0].strip()    
