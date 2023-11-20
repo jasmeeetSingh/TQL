@@ -7,6 +7,8 @@ import requests
 import json
 import pandas as pd
 
+from sql_formatter.core import format_sql
+
 def style():
     st.markdown(
         """
@@ -98,65 +100,77 @@ def main():
                 st.markdown(j)
             st.text('----')
 
-    # Layout the main content area
-    col1, col2 = st.columns(2)
+    st.subheader("New Query")
 
-    with col1:
-        st.subheader("New Query")
+    # Select a test schema from a dropdown
+    schema = st.selectbox("Select a test schema from dropdown", ["Excel Upload", "college_2", "yelp", "student_assessment"])
 
-        # Select a test schema from a dropdown
-        schema = st.selectbox("Select a test schema from dropdown", ["Excel Upload", "college_2", "yelp", "student_assessment"])
-        
-        s = pd.DataFrame()
-        if(schema == "Excel Upload"):
-            uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+    s = pd.DataFrame()
+    if(schema == "Excel Upload"):
+        uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
-            if uploaded_file is not None:
-                st.write("File uploaded successfully!")
+        if uploaded_file is not None:
+            st.write("File uploaded successfully!")
 
-                try:
-                    s = parse_excel_file(uploaded_file)
-                    show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
-                    .rename(columns = {
-                        'table_name' : 'Name of Table', 
-                        'primary_key' : 'Primary Key', 
-                        'column_list': 'List of Columns', 
-                        'foreign_keys' : 'Foreign Keys'
-                    })
-                    st.dataframe(show_df)
-                except Exception as e:
-                    st.error(f"Error while uploading the file: {e}")
-                    
+            try:
+                s = parse_excel_file(uploaded_file)
+                show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+                .rename(columns = {
+                    'table_name' : 'Name of Table', 
+                    'primary_key' : 'Primary Key', 
+                    'column_list': 'List of Columns', 
+                    'foreign_keys' : 'Foreign Keys'
+                })
+                st.dataframe(show_df, use_container_width = True, hide_index = True)
+            except Exception as e:
+                st.error(f"Error while uploading the file: {e}")
+
+    else:
+        q, s = get_spider_schema_table_files()
+        s = s[s['schema_id'] == schema]
+        show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+        .rename(columns = {
+            'table_name' : 'Name of Table', 
+            'primary_key' : 'Primary Key', 
+            'column_list': 'List of Columns', 
+            'foreign_keys' : 'Foreign Keys'
+        })
+        st.dataframe(show_df, use_container_width = True, hide_index = True)
+
+    # Enter query
+    query = st.text_area("Enter query:", height=200)
+
+    if st.button("Run Query"):
+        if query.strip() == "":
+            st.error("Please enter a query.")
         else:
-            q, s = get_spider_schema_table_files()
-            s = s[s['schema_id'] == schema]
-            show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
-            .rename(columns = {
-                'table_name' : 'Name of Table', 
-                'primary_key' : 'Primary Key', 
-                'column_list': 'List of Columns', 
-                'foreign_keys' : 'Foreign Keys'
-            })
-            st.dataframe(show_df)
-
-        # Enter query
-        query = st.text_area("Enter query:", height=200)
-    
-        if st.button("Run Query"):
-            if query.strip() == "":
-                st.error("Please enter a query.")
-            else:
-                # Call your function to convert TQL to SQL
-                processed_text = ''
-                url_api = 'https://7b9d-34-173-188-113.ngrok-free.app/api/data'
-                response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
-                print(response.content)
-                st.success("Generated SQL Query:")
-                st.code(json.loads(response.content)['final_SQL_query'], language="sql")
-                st.session_state['old_queries'].append([
-                    ':gray[**Question:**] ' + query, 
-                     ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
-                ])
+            # Call your function to convert TQL to SQL
+            processed_text = ''
+            # url_api = 'https://7b9d-34-173-188-113.ngrok-free.app/api/data'
+            # response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
+            # print(response.content)
+            st.success("Generated SQL Query:")
+            # st.code(json.loads(response.content)['final_SQL_query'], language="sql")
+            formatted_sql = format_sql("""
+                create or replace table mytable as -- mytable example
+                seLecT a.asdf, b.qwer, -- some comment here
+                c.asdf, -- some comment there
+                b.asdf2 frOm table1 as a leFt join 
+                table2 as b -- and here a comment
+                    on a.asdf = b.asdf  -- join this way
+                    inner join table3 as c
+                on a.asdf=c.asdf
+                whEre a.asdf= 1 -- comment this
+                anD b.qwer =2 and a.asdf<=1 --comment that
+                or b.qwer>=5
+                groUp by a.asdf
+                """)
+            st.code(formatted_sql ,language="sql")
+            st.session_state['old_queries'].append([
+                ':gray[**Question:**] ' + query,
+                ':gray[**SQL:**] ' + 'yoyoyoyo'
+                 # ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
+            ])
                     
 
 if __name__ == '__main__':
