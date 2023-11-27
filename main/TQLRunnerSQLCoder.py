@@ -7,6 +7,7 @@ from TableMapper import TableMapper
 
 from tqdm.notebook import tqdm
 tqdm.pandas()
+import time
 
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
@@ -116,6 +117,7 @@ class TQLRunner():
 
     def get_SQL_query(self, input_text):
 
+        start_time = time.time()
         prompt = self.get_final_prompt(input_text)
         eos_token_id = self.tokenizer.convert_tokens_to_ids(["```"])[0]
         inputs = self.tokenizer(prompt, return_tensors="pt").to('cuda')
@@ -124,10 +126,11 @@ class TQLRunner():
             num_return_sequences=1,
             eos_token_id=eos_token_id,
             pad_token_id=eos_token_id,
-            max_new_tokens=60,
+            max_new_tokens=80,
             do_sample=True,
             num_beams=3
         )
         outputs = self.tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
         torch.cuda.empty_cache()
+        print("---------- %s seconds ---------" % (time.time() - start_time))
         return outputs[0].split("```sql")[-1].split("```")[0].split(";")[0].strip()    

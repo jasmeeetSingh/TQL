@@ -7,6 +7,8 @@ import requests
 import json
 import pandas as pd
 
+import time
+
 from sql_formatter.core import format_sql
 
 def style():
@@ -95,9 +97,9 @@ def main():
     # Layout the sidebar for older queries
     with st.sidebar:
         st.markdown("# Older Queries")
-        for i in st.session_state['old_queries']:
-            for j in i:
-                st.markdown(j)
+        for i in st.session_state['old_queries'][::-1]:
+            st.markdown(i[0])
+            st.code(i[1])
             st.text('----')
 
     st.subheader("New Query")
@@ -146,30 +148,20 @@ def main():
         else:
             # Call your function to convert TQL to SQL
             processed_text = ''
-            # url_api = 'https://7b9d-34-173-188-113.ngrok-free.app/api/data'
-            # response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
-            # print(response.content)
+            url_api = 'https://1bd8-34-133-103-51.ngrok-free.app/api/data'
+            
+            with st.spinner(text = '''      Parsing tables...'''):
+                time.sleep(2)
+            with st.spinner('   Generating the SQL Query...'):
+                response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
+                print(response.content)
+            
             st.success("Generated SQL Query:")
-            # st.code(json.loads(response.content)['final_SQL_query'], language="sql")
-            formatted_sql = format_sql("""
-                create or replace table mytable as -- mytable example
-                seLecT a.asdf, b.qwer, -- some comment here
-                c.asdf, -- some comment there
-                b.asdf2 frOm table1 as a leFt join 
-                table2 as b -- and here a comment
-                    on a.asdf = b.asdf  -- join this way
-                    inner join table3 as c
-                on a.asdf=c.asdf
-                whEre a.asdf= 1 -- comment this
-                anD b.qwer =2 and a.asdf<=1 --comment that
-                or b.qwer>=5
-                groUp by a.asdf
-                """)
+            formatted_sql = format_sql(json.loads(response.content)['final_SQL_query'])
             st.code(formatted_sql ,language="sql")
             st.session_state['old_queries'].append([
                 ':gray[**Question:**] ' + query,
-                ':gray[**SQL:**] ' + 'yoyoyoyo'
-                 # ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
+                formatted_sql
             ])
                     
 
