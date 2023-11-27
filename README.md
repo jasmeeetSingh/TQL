@@ -125,19 +125,19 @@ Sometimes, the road to answers can be a bit bumpy. If TQL detects that your inpu
 
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/5c1bf95b-cc1c-40be-9cd5-80a65b29a534)
 
-### Architechure
+### Architecture
 
-![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/8a717b22-a0f3-465a-843c-31e002869a49)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/ff9baed6-138e-4341-ac14-510984263716)
 
 
-![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/92d40119-14bf-4aa1-a9f3-e904e5a2e1ab)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/7e3c0345-b2d7-4744-9c89-d1821e1deefa)
 
 
 #### High-Level Flow Summarized
 
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/dd432223-96d2-454a-88d4-c576d066c7a7)
 
-<img width="720" alt="image" src="https://github.com/jasmeeetSingh/TQL/assets/58945986/e20d8e5f-d95d-455e-858f-2ca39f3cd3f3">
+![image](https://github.com/jasmeeetSingh/TQL/assets/58945986/e20d8e5f-d95d-455e-858f-2ca39f3cd3f3)
 
 ## The Models Behind TQL
 
