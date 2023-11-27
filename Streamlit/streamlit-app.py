@@ -7,6 +7,10 @@ import requests
 import json
 import pandas as pd
 
+import time
+
+from sql_formatter.core import format_sql
+
 def style():
     st.markdown(
         """
@@ -93,70 +97,72 @@ def main():
     # Layout the sidebar for older queries
     with st.sidebar:
         st.markdown("# Older Queries")
-        for i in st.session_state['old_queries']:
-            for j in i:
-                st.markdown(j)
+        for i in st.session_state['old_queries'][::-1]:
+            st.markdown(i[0])
+            st.code(i[1])
             st.text('----')
 
-    # Layout the main content area
-    col1, col2 = st.columns(2)
+    st.subheader("New Query")
 
-    with col1:
-        st.subheader("New Query")
+    # Select a test schema from a dropdown
+    schema = st.selectbox("Select a test schema from dropdown", ["Excel Upload", "college_2", "yelp", "student_assessment"])
 
-        # Select a test schema from a dropdown
-        schema = st.selectbox("Select a test schema from dropdown", ["Excel Upload", "college_2", "yelp", "student_assessment"])
-        
-        s = pd.DataFrame()
-        if(schema == "Excel Upload"):
-            uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+    s = pd.DataFrame()
+    if(schema == "Excel Upload"):
+        uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
 
-            if uploaded_file is not None:
-                st.write("File uploaded successfully!")
+        if uploaded_file is not None:
+            st.write("File uploaded successfully!")
 
-                try:
-                    s = parse_excel_file(uploaded_file)
-                    show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
-                    .rename(columns = {
-                        'table_name' : 'Name of Table', 
-                        'primary_key' : 'Primary Key', 
-                        'column_list': 'List of Columns', 
-                        'foreign_keys' : 'Foreign Keys'
-                    })
-                    st.dataframe(show_df)
-                except Exception as e:
-                    st.error(f"Error while uploading the file: {e}")
-                    
+            try:
+                s = parse_excel_file(uploaded_file)
+                show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+                .rename(columns = {
+                    'table_name' : 'Name of Table', 
+                    'primary_key' : 'Primary Key', 
+                    'column_list': 'List of Columns', 
+                    'foreign_keys' : 'Foreign Keys'
+                })
+                st.dataframe(show_df, use_container_width = True, hide_index = True)
+            except Exception as e:
+                st.error(f"Error while uploading the file: {e}")
+
+    else:
+        q, s = get_spider_schema_table_files()
+        s = s[s['schema_id'] == schema]
+        show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
+        .rename(columns = {
+            'table_name' : 'Name of Table', 
+            'primary_key' : 'Primary Key', 
+            'column_list': 'List of Columns', 
+            'foreign_keys' : 'Foreign Keys'
+        })
+        st.dataframe(show_df, use_container_width = True, hide_index = True)
+
+    # Enter query
+    query = st.text_area("Enter query:", height=200)
+
+    if st.button("Run Query"):
+        if query.strip() == "":
+            st.error("Please enter a query.")
         else:
-            q, s = get_spider_schema_table_files()
-            s = s[s['schema_id'] == schema]
-            show_df = s[['table_name', 'primary_key', 'column_list']].reset_index(drop = True)\
-            .rename(columns = {
-                'table_name' : 'Name of Table', 
-                'primary_key' : 'Primary Key', 
-                'column_list': 'List of Columns', 
-                'foreign_keys' : 'Foreign Keys'
-            })
-            st.dataframe(show_df)
-
-        # Enter query
-        query = st.text_area("Enter query:", height=200)
-    
-        if st.button("Run Query"):
-            if query.strip() == "":
-                st.error("Please enter a query.")
-            else:
-                # Call your function to convert TQL to SQL
-                processed_text = ''
-                url_api = 'https://7b9d-34-173-188-113.ngrok-free.app/api/data'
+            # Call your function to convert TQL to SQL
+            processed_text = ''
+            url_api = 'https://1bd8-34-133-103-51.ngrok-free.app/api/data'
+            
+            with st.spinner(text = '''      Parsing tables...'''):
+                time.sleep(2)
+            with st.spinner('   Generating the SQL Query...'):
                 response = requests.post(url_api, json = {"schema" : schema, "query" : query, "dataframe" : s.to_json()})
                 print(response.content)
-                st.success("Generated SQL Query:")
-                st.code(json.loads(response.content)['final_SQL_query'], language="sql")
-                st.session_state['old_queries'].append([
-                    ':gray[**Question:**] ' + query, 
-                     ':gray[**SQL:**] ' + json.loads(response.content)['final_SQL_query']
-                ])
+            
+            st.success("Generated SQL Query:")
+            formatted_sql = format_sql(json.loads(response.content)['final_SQL_query'])
+            st.code(formatted_sql ,language="sql")
+            st.session_state['old_queries'].append([
+                ':gray[**Question:**] ' + query,
+                formatted_sql
+            ])
                     
 
 if __name__ == '__main__':
