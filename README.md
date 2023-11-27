@@ -45,6 +45,15 @@ We split the data into 2 CSV files:
 
 In a world driven by data, the ability to access and manipulate databases is invaluable. TQL offers a natural language interface, turning everyday language into powerful SQL commands. Whether you are a seasoned data professional, a researcher seeking insights, a developer streamlining database interactions, or an everyday user in search of specific information, TQL makes data retrieval accessible to all.
 
+TQL is really good at figuring out and matching schema info. It helps us understand the data model for any given query and the related underlying schema. This tool can handle any type of schema, no matter how many tables, columns, or rows there are in the dataset.
+What's cool is our way of understanding the data model – we don't have to read the actual data.
+
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/86eaab66-4508-4960-9f5f-b78dcf8f52da)
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/7da17df7-d0f9-480d-9d90-efa5f17a04a4)
+
+
 ## Comparison of TQL output with other out solutions in the market
 
 For any given query, TQL is able to parse and accurately map the schema information to understand the data model context of any given underlying schema. 
@@ -87,7 +96,17 @@ The journey through TQL involves the following steps:
 
 TQL's journey begins with your simple request. Users provide queries in plain, everyday language. TQL is ready to interpret these queries and transform them into structured SQL commands.
 
-![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/d1316b23-bc27-4a1e-8bb1-59802036a6d7)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/974d0005-e7df-4900-985b-f1c10b1ff524)
+
+We have given the user the option to upload a custom Excel file with the schema in the format below, where we are only concerned about the DDL and need no access to data to perform our TQL magic. 
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/f7cd90f0-80e5-40b9-a260-dcaf5164bafc)
+
+
+Additionally, the user can select which schemas they have access to so they can manually select which schema they want to run queries. 
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/5a797f59-0558-42ba-b48b-183715195066)
+
 
 ### 2. Database Schema Integration
 
@@ -97,7 +116,8 @@ TQL is more than a language translator; it's a database expert. It understands t
 
 With all the pieces in place, TQL generates a tailored SQL query that aligns perfectly with your natural language request. This process guarantees accurate and reliable results.
 
-![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/c98b48aa-4f8e-4359-9601-ff4452630a2e)
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/eeaa36e9-b8a5-457e-b716-185da0483b56)
+
 
 ### 4. TQL Error Handling
 
@@ -106,6 +126,16 @@ Sometimes, the road to answers can be a bit bumpy. If TQL detects that your inpu
 ![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/5c1bf95b-cc1c-40be-9cd5-80a65b29a534)
 
 ### Architechure
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/8a717b22-a0f3-465a-843c-31e002869a49)
+
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/92d40119-14bf-4aa1-a9f3-e904e5a2e1ab)
+
+
+#### High-Level Flow Summarized
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/dd432223-96d2-454a-88d4-c576d066c7a7)
 
 <img width="720" alt="image" src="https://github.com/jasmeeetSingh/TQL/assets/58945986/e20d8e5f-d95d-455e-858f-2ca39f3cd3f3">
 
@@ -123,15 +153,19 @@ We tested the TQL logic on quite a few models, some of these include:
 - **T5**
 - **T5- For code generation**
 - **Llama2**
-- **LLama2 Chat**
+- **SQL Coder**
+
+## Results
+
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/54e359a4-2269-45f5-b117-399aaf0383ba)
+
 
 ## The Road Ahead
 
 As we look to the future, TQL is far from reaching its final destination. There's a lot more to explore and improve, such as:
 
-- **Advanced NLP Models**: Leveraging state-of-the-art NLP models for even more accurate translations.
-- **Enhanced User Experience**: Continuously refining the user interface to make TQL even more user-friendly.
-- **Support for Multiple Databases**: Expanding compatibility with various database management systems.
+![image](https://github.com/jasmeeetSingh/TQL/assets/71340782/506aa871-f12b-432d-b307-ebfb9bc9fd31)
+
 
 ## Repository Structure
 
